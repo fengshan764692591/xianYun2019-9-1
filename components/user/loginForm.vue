@@ -1,11 +1,14 @@
 <template>
+  <!-- model：指定表单数据对象 -->
+  <!-- ref: 获取dom元素, 用于表单的验证 -->
+  <!-- rules：表单验证规则 -->
   <el-form :model="form" ref="form" :rules="rules" class="form">
-    <el-form-item class="form-item">
-      <el-input placeholder="用户名/手机"></el-input>
+    <el-form-item class="form-item" prop="username">
+      <el-input v-model="form.username" placeholder="用户名/手机"></el-input>
     </el-form-item>
 
-    <el-form-item class="form-item">
-      <el-input placeholder="密码" type="password"></el-input>
+    <el-form-item class="form-item" prop="password">
+      <el-input v-model="form.password" placeholder="密码" type="password"></el-input>
     </el-form-item>
 
     <p class="form-text">
@@ -21,15 +24,37 @@ export default {
   data() {
     return {
       // 表单数据
-      form: {},
+      form: {
+        username: "",
+        password: ""
+      },
       // 表单规则
-      rules: {}
+      rules: {
+        username: [
+          { required: true, message: "请输入用户名", trigger: "blur" }
+        ],
+        password: [{ required: true, message: "请输入密码", trigger: "blur" }]
+      }
     };
   },
   methods: {
     // 提交登录
     handleLoginSubmit() {
-      console.log(this.form);
+      // 验证表单的是否都有内容
+      this.$refs.form.validate(valid => {
+        // 验证通过
+        if (valid) {
+          // 调用actions的登录方法
+          this.$store.dispatch("user/login", this.form).then(res => {
+            this.$message.success("登录成功，正在跳转...");
+
+            setTimeout(() => {
+              // 返回上一页
+              this.$router.back();
+            }, 1500);
+          });
+        }
+      });
     }
   }
 };
